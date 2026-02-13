@@ -2,8 +2,8 @@
 <!--Phoronix Test Suite v10.8.4-->
 <PhoronixTestSuite>
   <TestInformation>
-    <Title>Memcached</Title>
-    <AppVersion>1.6.19</AppVersion>
+    <Title>Memcached with 5 Nodes</Title>
+    <AppVersion>1.0</AppVersion>
     <Description>Memcached is a high performance, distributed memory object caching system. This Memcached test profiles makes use of memtier_benchmark for excuting this CPU/memory-focused server benchmark.</Description>
     <TimesToRun>3</TimesToRun>
   </TestInformation>
@@ -13,12 +13,12 @@
     <SoftwareType>Application</SoftwareType>
     <TestType>System</TestType>
     <License>Free</License>
-    <Status>Verified</Status>
+    <Status>Experimental</Status>
     <ExternalDependencies>build-utilities, libevent, pcre, zlib-development, openssl-development, libtool</ExternalDependencies>
     <EnvironmentSize>64</EnvironmentSize>
     <ProjectURL>https://memcached.org/</ProjectURL>
-    <RepositoryURL>https://github.com/memcached/memcached</RepositoryURL>
-    <Maintainer>Michael Larabel</Maintainer>
+    <RepositoryURL>https://github.com/richard-syKim/4675-memcached-pts.git</RepositoryURL>
+    <Maintainer>Sang Yoon Kim</Maintainer>
     <SystemDependencies>pkg-config</SystemDependencies>
   </TestProfile>
   <TestSettings>
