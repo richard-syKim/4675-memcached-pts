@@ -93,7 +93,40 @@ cd memtier_benchmark-1.4.0 || exit 1
   --protocol=memcache_text \
   --server=127.0.0.1 \
   --port=5000 \
-  --hide-histogram
+  --clients=1 \
+  --pipeline=16 \
+  --test-time=60 \
+  --ratio=1:100 \
+#   "$@" > "$LOG_FILE"
+
+./memtier_benchmark \
+  --protocol=memcache_text \
+  --server=127.0.0.1 \
+  --port=5000 \
+  --clients=1 \
+  --pipeline=16 \
+  --test-time=60 \
+  --ratio=1:10 \
+#   "$@" > "$LOG_FILE"
+
+./memtier_benchmark \
+  --protocol=memcache_text \
+  --server=127.0.0.1 \
+  --port=5000 \
+  --clients=1 \
+  --pipeline=16 \
+  --test-time=60 \
+  --ratio=1:1 \
+#   "$@" > "$LOG_FILE"
+
+./memtier_benchmark \
+  --protocol=memcache_text \
+  --server=127.0.0.1 \
+  --port=5000 \
+  --clients=1 \
+  --pipeline=16 \
+  --test-time=60 \
+  --ratio=5:1 \
 #   "$@" > "$LOG_FILE"
 
 # wait
