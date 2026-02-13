@@ -30,6 +30,7 @@ autoreconf -ivf
 ./configure
 make -j $NUM_CPU_CORES || exit 1
 
+cd ..
 # mcrouter config
 cat > cluster.json <<'EOF'
 {
@@ -44,14 +45,10 @@ cat > cluster.json <<'EOF'
       ]
     }
   },
-  "route": {
-    "type": "PoolRoute",
-    "pool": "A"
-  }
+  "route": "PoolRoute|A"
 }
 EOF
 
-cd ..
 cat > memcached-5node <<'EOF'
 #!/bin/sh
 
@@ -86,9 +83,11 @@ done
 
 sleep 5
 
+cd ..
+
 # Start mcrouter on port 5000
 mcrouter \
-  --config-file=../cluster.json \
+  --config-file=cluster.json \
   --port=5000 \
   --num-proxies=1 &
 
@@ -96,7 +95,7 @@ MCR=$!
 
 sleep 6
 
-cd ../memtier_benchmark-1.4.0 || exit 1
+cd memtier_benchmark-1.4.0 || exit 1
 
 # Benchmark THROUGH mcrouter
 ./memtier_benchmark \
@@ -113,7 +112,6 @@ done
 
 kill $MEM1 $MEM2 $MEM3 $MEM4 $MEM5 $MCR 2>/dev/null
 EOF
-
 
 chmod +x memcached-5node
 
