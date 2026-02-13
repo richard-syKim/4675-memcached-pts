@@ -59,10 +59,18 @@ cleanup() {
           sudo ip addr del 10.0.0.$i/32 dev lo 2>/dev/null
      done
      
-     kill $MEM1 $MEM2 $MEM3 $MEM4 $MEM5 $MCR 2>/dev/null
+     kill $MEM1 $MEM2 $MEM3 $MEM4 $MEM5 $MCR $SUDO_LOOP_PID 2>/dev/null
 }
 
 trap cleanup EXIT
+
+sudo -v
+
+# Keep sudo alive for a short time
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+SUDO_LOOP_PID=$!
+
+: "${NUM_CPU_CORES:=4}"
 
 cd memcached-1.6.19 || exit 1
 
