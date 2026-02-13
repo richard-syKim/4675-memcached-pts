@@ -2,93 +2,64 @@
 
 : "${MEMCACHED_USER:=nobody}"
 : "${NUM_CPU_CORES:=4}"
+LOG_FILE="benchmark_results_$(date +%Y%m%d_%H%M%S).log"
 
 cleanup() {
-    # sudo tc qdisc del dev lo root 2>/dev/null
-
+    # Remove loopback IPs
     for i in 1 2 3 4 5; do
         sudo ip addr del 10.0.0.$i/32 dev lo 2>/dev/null
     done
-     
+
+    # Kill background processes
     kill $MEM1 $MEM2 $MEM3 $MEM4 $MEM5 $MCR 2>/dev/null
 }
 
 trap cleanup EXIT
 
+# Prompt user for benchmark ratio
+echo "Choose which Write:Read ratio you wish to benchmark:"
+echo "1) 1:100"
+echo "2) 1:10"
+echo "3) 1:1"
+echo "4) 5:1"
+read -rp "Enter choice (1-4): " choice
 
-# Extract memcached
-tar -xzf memcached-1.6.19.tar.gz
+case "$choice" in
+    1) RATIO="1:100" ;;
+    2) RATIO="1:10" ;;
+    3) RATIO="1:1" ;;
+    4) RATIO="5:1" ;;
+    *) echo "Invalid choice"; exit 1 ;;
+esac
+
+# Start memcached nodes
 cd memcached-1.6.19 || exit 1
-./configure
-make -j $NUM_CPU_CORES || exit 1
-
-cd ..
-
-# Extract memtier
-tar -xzf memtier_benchmark-1.4.0.tar.gz
-cd memtier_benchmark-1.4.0 || exit 1
-
-autoreconf -ivf
-./configure
-make -j $NUM_CPU_CORES || exit 1
-
-cd ..
-# mcrouter config
-cat > cluster.json <<'EOF'
-{
-  "pools": {
-    "A": {
-      "servers": [
-        "10.0.0.1:11211",
-        "10.0.0.2:11211",
-        "10.0.0.3:11211",
-        "10.0.0.4:11211",
-        "10.0.0.5:11211"
-      ]
-    }
-  },
-  "route": "PoolRoute|A"
-}
-EOF
-
-cd memcached-1.6.19 || exit 1
-
-# Add loopback IPs
 for i in 1 2 3 4 5; do
     sudo ip addr add 10.0.0.$i/32 dev lo
 done
 
-# Add artificial latency + jitter
-# sudo tc qdisc add dev lo root netem delay 1ms 0.2ms distribution normal
+for i in 1 2 3 4 5; do
+    ./memcached -u "$MEMCACHED_USER" -l 10.0.0.$i -p 11211 -t "$NUM_CPU_CORES" &
+done
 
-# Start 5 memcached nodes
-./memcached -u "$MEMCACHED_USER" -l 10.0.0.1 -p 11211 -t $NUM_CPU_CORES & 
 MEM1=$!
-./memcached -u "$MEMCACHED_USER" -l 10.0.0.2 -p 11211 -t $NUM_CPU_CORES & 
 MEM2=$!
-./memcached -u "$MEMCACHED_USER" -l 10.0.0.3 -p 11211 -t $NUM_CPU_CORES & 
 MEM3=$!
-./memcached -u "$MEMCACHED_USER" -l 10.0.0.4 -p 11211 -t $NUM_CPU_CORES & 
 MEM4=$!
-./memcached -u "$MEMCACHED_USER" -l 10.0.0.5 -p 11211 -t $NUM_CPU_CORES & 
 MEM5=$!
 
 sleep 5
-
 cd ..
 
-# Start mcrouter on port 5000
-mcrouter \
-  --config-file=cluster.json \
-  --port=5000 \
-  --num-proxies=1 & 
-  MCR=$!
+# Start mcrouter
+mcrouter --config-file=cluster.json --port=5000 --num-proxies=1 &
+MCR=$!
 
 sleep 6
 
+# Run memtier benchmark
 cd memtier_benchmark-1.4.0 || exit 1
-
-# Benchmark THROUGH mcrouter
+echo "Running benchmark with ratio $RATIO..."
 ./memtier_benchmark \
   --protocol=memcache_text \
   --server=127.0.0.1 \
@@ -96,45 +67,6 @@ cd memtier_benchmark-1.4.0 || exit 1
   --clients=1 \
   --pipeline=16 \
   --test-time=60 \
-  --ratio=1:100 \
-#   "$@" > "$LOG_FILE"
+  --ratio="$RATIO" | tee "../$LOG_FILE"
 
-./memtier_benchmark \
-  --protocol=memcache_text \
-  --server=127.0.0.1 \
-  --port=5000 \
-  --clients=1 \
-  --pipeline=16 \
-  --test-time=60 \
-  --ratio=1:10 \
-#   "$@" > "$LOG_FILE"
-
-./memtier_benchmark \
-  --protocol=memcache_text \
-  --server=127.0.0.1 \
-  --port=5000 \
-  --clients=1 \
-  --pipeline=16 \
-  --test-time=60 \
-  --ratio=1:1 \
-#   "$@" > "$LOG_FILE"
-
-./memtier_benchmark \
-  --protocol=memcache_text \
-  --server=127.0.0.1 \
-  --port=5000 \
-  --clients=1 \
-  --pipeline=16 \
-  --test-time=60 \
-  --ratio=5:1 \
-#   "$@" > "$LOG_FILE"
-
-# wait
-for i in 1 2 3 4 5; do
-     sudo ip addr del 10.0.0.$i/32 dev lo 2>/dev/null
-done
-
-kill $MEM1 $MEM2 $MEM3 $MEM4 $MEM5 $MCR 2>/dev/null
-
-
-# exit 0
+echo "Benchmark complete. Results saved to $LOG_FILE"
