@@ -101,10 +101,13 @@ echo "Running benchmark with ratio $RATIO..."
   --server=127.0.0.1 \
   --port=5000 \
   --clients=1 \
-  --pipeline=16 \
+  --pipeline=128 \
+  --delay=500 \
   --test-time=60 \
   --key-maximum=500000 \
-  --ratio="$RATIO" | tee "../$LOG_FILE"
+  --ratio="$RATIO" \
+  --hdr-file-prefix="../hdr_$(date +%Y%m%d_%H%M%S)" \
+  | tee "../$LOG_FILE"
 
 echo "Benchmark complete. Results saved to $LOG_FILE"
 
