@@ -102,7 +102,6 @@ echo "Running benchmark with ratio $RATIO..."
   --port=5000 \
   --clients=1 \
   --pipeline=16 \
-  --delay=500 \
   --test-time=60 \
   --key-maximum=500000 \
   --ratio="$RATIO" \
