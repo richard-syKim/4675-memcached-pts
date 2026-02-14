@@ -3,8 +3,16 @@
 : "${NUM_CPU_CORES:=4}"
 
 # Install dependencies for mcrouter
-sudo apt update
 sudo apt install -y php-zip build-essential pkg-config autoconf automake libevent-dev libssl-dev zlib1g-dev
+
+# Install mcrouter
+wget -O - https://facebook.github.io/mcrouter/debrepo/bionic/PUBLIC.KEY | sudo apt-key add -
+
+# Add mcrouter repo
+echo "deb https://facebook.github.io/mcrouter/debrepo/bionic bionic contrib" | sudo tee /etc/apt/sources.list.d/mcrouter.list
+
+# Update apt
+sudo apt update
 
 # Install mcrouter
 sudo apt install -y mcrouter

@@ -35,7 +35,7 @@ read -rp "Enter choice (1-5): " choice
 case "$choice" in
     1) RATIO="1:100" ;;
     2) RATIO="1:10" ;;
-    3) RATIO="1:1" ;;
+    3) RATIO="1:5" ;;
     4) RATIO="1:1" ;;
     5) RATIO="5:1" ;;
     *) echo "Invalid choice"; exit 1 ;;
