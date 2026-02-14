@@ -72,7 +72,7 @@ MCR=$!
 sleep 6
 
 # Run memtier benchmark
-cd memtier_benchmark-1.4.0 || exit 1
+cd memtier_benchmark-2.2.1 || exit 1
 
 # printf "stats\r\n" | nc -q 1 10.0.0.1 11211 | grep evictions
 
@@ -101,7 +101,7 @@ echo "Running benchmark with ratio $RATIO..."
   --server=127.0.0.1 \
   --port=5000 \
   --clients=1 \
-  --pipeline=128 \
+  --pipeline=16 \
   --delay=500 \
   --test-time=60 \
   --key-maximum=500000 \

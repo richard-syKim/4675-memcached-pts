@@ -17,8 +17,8 @@ make -j "$NUM_CPU_CORES" || exit 1
 cd ..
 
 # Extract and build memtier
-tar -xzf memtier_benchmark-1.4.0.tar.gz
-cd memtier_benchmark-1.4.0 || exit 1
+tar -xzf memtier_benchmark-2.2.1.tar.gz
+cd memtier_benchmark-2.2.1 || exit 1
 autoreconf -ivf
 ./configure
 make -j "$NUM_CPU_CORES" || exit 1

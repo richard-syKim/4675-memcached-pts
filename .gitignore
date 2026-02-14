@@ -1,0 +1,4 @@
+memcached-1.6.19/
+memtier_benchmark-2.2.1/
+*.log
+*.hgrm
