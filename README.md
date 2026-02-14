@@ -1,7 +1,7 @@
 # 4675-memcached-pts
 
 ## Requirements
-* Ubuntu 16.04 is required to run this project.
+* Ubuntu 18.04 is required to run this project.
 * While it is possible to use WSL, running on a native Ubuntu installation is recommended if you want to simulate network latency.
 
 ## Running the Benchmark
