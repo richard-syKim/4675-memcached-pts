@@ -4,7 +4,7 @@
 
 # Install dependencies for mcrouter
 sudo apt update
-sudo apt install -y php-zip build-essential pkg-config autoconf automake libevent-dev
+sudo apt install -y php-zip build-essential pkg-config autoconf automake libevent-dev libssl-dev zlib1g-dev
 
 # Install mcrouter
 sudo apt install -y mcrouter
